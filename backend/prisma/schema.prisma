@@ -1,0 +1,46 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  subjects  Subject[] @relation("UserSubjects")
+  progress   Progress[]
+  videos    Video[] @relation("UserVideos")
+}
+
+model Subject {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  users     User[] @relation("UserSubjects")
+  videos    Video[]
+}
+
+model Video {
+  id        Int      @id @default(autoincrement())
+  title     String
+  url       String   @unique
+  subjectId Int
+  userId    Int
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  user      User @relation(fields: [userId], references: [id])
+}
+
+model Progress {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  videoId   Int
+  progress   Float
+  user      User @relation(fields: [userId], references: [id])
+  video     Video @relation(fields: [videoId], references: [id])
+}
